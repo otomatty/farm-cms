@@ -13,8 +13,8 @@ export const NotFoundPage = () => {
 			<p className="text-gray-500 mt-2 mb-8">
 				お探しのページは存在しないか、移動した可能性があります。
 			</p>
-			<Button onClick={() => navigate("/")} size="lg">
-				ホームに戻る
+			<Button onClick={() => navigate(-1)} size="lg">
+				前のページに戻る
 			</Button>
 		</div>
 	);

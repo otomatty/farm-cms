@@ -11,24 +11,12 @@ export const DashboardPage = () => {
 	}, []);
 
 	return (
-		<div className="p-4 mx-8">
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
-				<div className="md:col-span-1 lg:col-span-6 bg-red-200">
-					<Analytics />
-				</div>
-				<div className="md:col-span-1 lg:col-span-6 bg-blue-200">
-					<EventCalendar />
-				</div>
-				<div className="md:col-span-2 lg:col-span-4 bg-green-200">
-					<TaskList />
-				</div>
-				<div className="md:col-span-2 lg:col-span-4 bg-yellow-200">
-					<RecentInquiries />
-				</div>
-				<div className="md:col-span-2 lg:col-span-4 bg-purple-200">
-					<UpdateHistory />
-				</div>
-			</div>
+		<div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+			<Analytics className="md:col-span-2 lg:col-span-4" />
+			<EventCalendar className="md:col-span-2 lg:col-span-2" />
+			<TaskList className="md:col-span-1 lg:col-span-2" />
+			<RecentInquiries className="md:col-span-1 lg:col-span-2" />
+			<UpdateHistory className="md:col-span-1 lg:col-span-2" />
 		</div>
 	);
 };

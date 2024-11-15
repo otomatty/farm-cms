@@ -1,11 +1,12 @@
+import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import MonthlyCalendar from "./MonthlyCalendar";
 import UpcomingEvents from "./UpcomingEvents";
 
-export default function EventCalendar() {
+export default function EventCalendar({ className }: { className?: string }) {
 	return (
-		<Card className="p-4 h-full">
+		<Card className={cn("p-4 h-full", className)}>
 			<Tabs defaultValue="recent">
 				<TabsList className="w-full">
 					<TabsTrigger className="w-full" value="recent">

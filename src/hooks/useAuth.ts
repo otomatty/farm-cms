@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import type {
@@ -21,17 +21,28 @@ export const useAuth = () => {
 	const navigate = useNavigate();
 	const [user, setUser] = useAtom(userAtom);
 	const [session, setSession] = useAtom(sessionAtom);
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		const initializeAuth = async () => {
+			setIsLoading(true);
 			try {
-				const currentSession = await authService.getCurrentSession();
-				setSession(currentSession);
-				setUser(currentSession?.user ?? null);
+				const {
+					data: { session: currentSession },
+				} = await supabase.auth.getSession();
+				if (currentSession) {
+					setSession(currentSession);
+					setUser(currentSession.user);
+				} else {
+					setSession(null);
+					setUser(null);
+				}
 			} catch (error) {
 				console.error("認証の初期化に失敗しました:", error);
 				setSession(null);
 				setUser(null);
+			} finally {
+				setIsLoading(false);
 			}
 		};
 
@@ -39,13 +50,22 @@ export const useAuth = () => {
 
 		const {
 			data: { subscription },
-		} = supabase.auth.onAuthStateChange((_event, session) => {
-			setSession(session);
-			setUser(session?.user ?? null);
+		} = supabase.auth.onAuthStateChange(async (event, session) => {
+			if (event === "SIGNED_IN") {
+				setSession(session);
+				setUser(session?.user ?? null);
+			} else if (event === "SIGNED_OUT") {
+				setSession(null);
+				setUser(null);
+				navigate("/auth/login");
+			} else if (event === "TOKEN_REFRESHED") {
+				setSession(session);
+				setUser(session?.user ?? null);
+			}
 		});
 
 		return () => subscription.unsubscribe();
-	}, [setSession, setUser]);
+	}, [setSession, setUser, navigate]);
 
 	const signUp = useCallback(
 		async (params: SignUpParams): Promise<AuthResponse> => {
@@ -170,6 +190,7 @@ export const useAuth = () => {
 	return {
 		user,
 		session,
+		isLoading,
 		signUp,
 		signIn,
 		signOut,

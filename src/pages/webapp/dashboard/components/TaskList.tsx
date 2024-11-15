@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import {
 	useReactTable,
@@ -23,7 +24,7 @@ import { MoreHorizontal } from "lucide-react";
 import ResponsiveDialog from "@/components/common/ResponsiveDialog";
 import { TaskForm } from "@/components/webapp/forms/TaskForm";
 
-export default function TaskList() {
+export default function TaskList({ className }: { className?: string }) {
 	const tasks = [
 		{ id: 1, title: "タスク1", completed: false },
 		{ id: 2, title: "タスク2", completed: true },
@@ -52,7 +53,7 @@ export default function TaskList() {
 	});
 
 	return (
-		<Card className="p-4">
+		<Card className={cn("p-4", className)}>
 			<div className="flex justify-between items-center">
 				<h2 className="text-lg font-semibold">タスク</h2>
 				<div className="flex space-x-2">

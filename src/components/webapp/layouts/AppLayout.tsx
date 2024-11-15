@@ -9,7 +9,7 @@ const AppLayout: React.FC = () => {
 			<AppSidebar />
 			<SidebarInset>
 				<AppHeader />
-				<main>
+				<main className="p-4 mx-8 lg:mx-16">
 					<Outlet />
 				</main>
 			</SidebarInset>

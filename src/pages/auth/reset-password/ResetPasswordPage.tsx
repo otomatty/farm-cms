@@ -9,6 +9,7 @@ import {
 	CardFooter,
 } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 export const ResetPasswordPage = () => {
 	const navigate = useNavigate();
@@ -16,16 +17,31 @@ export const ResetPasswordPage = () => {
 	const [email, setEmail] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [isSubmitted, setIsSubmitted] = useState(false);
+	const { toast } = useToast();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsLoading(true);
 
 		try {
-			await resetPassword(email);
+			const { error } = await resetPassword(email);
+			if (error) {
+				throw error;
+			}
 			setIsSubmitted(true);
+			toast({
+				title: "メール送信完了",
+				description:
+					"パスワードリセットのリンクを送信しました。メールをご確認ください。",
+			});
 		} catch (error) {
 			console.error("Password reset failed:", error);
+			toast({
+				variant: "destructive",
+				title: "エラー",
+				description:
+					"パスワードリセットに失敗しました。もう一度お試しください。",
+			});
 		} finally {
 			setIsLoading(false);
 		}

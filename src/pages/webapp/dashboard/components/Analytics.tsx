@@ -1,4 +1,5 @@
 import { useAtom } from "jotai";
+import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { selectedPeriodAtom } from "@/stores/periodAtom";
@@ -19,11 +20,11 @@ const periods = {
 	week: "1週間",
 };
 
-export default function Analytics() {
+export default function Analytics({ className }: { className?: string }) {
 	const [selectedPeriod, setSelectedPeriod] = useAtom(selectedPeriodAtom);
 
 	return (
-		<Card className="p-4 h-full md:w-[200px]">
+		<Card className={cn("p-4 h-full", className)}>
 			<Tabs defaultValue="user" className="h-full flex flex-col">
 				<div className="flex items-center">
 					<TabsList>

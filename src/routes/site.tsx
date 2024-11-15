@@ -21,10 +21,10 @@ export const siteRoutes: RouteObject[] = [
 				path: "/contact",
 				element: <ContactPage />,
 			},
-			{
-				path: "*",
-				element: <NotFoundPage />,
-			},
 		],
+	},
+	{
+		path: "*",
+		element: <NotFoundPage />,
 	},
 ];

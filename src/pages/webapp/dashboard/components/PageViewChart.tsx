@@ -18,13 +18,6 @@ import type { PageViewData } from "@/types/dashboardAnalytics";
 
 const chartConfig = {};
 
-// 仮のページビュー数データ
-const topPages = [
-	{ page: "/home", views: 1200 },
-	{ page: "/about", views: 900 },
-	{ page: "/contact", views: 750 },
-];
-
 export default function PageViewChart() {
 	const [selectedPeriod] = useAtom(selectedPeriodAtom);
 

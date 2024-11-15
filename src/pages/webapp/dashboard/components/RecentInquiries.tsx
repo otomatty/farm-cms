@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import {
 	useReactTable,
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-export default function RecentInquiries() {
+export default function RecentInquiries({ className }: { className?: string }) {
 	const inquiries = [
 		{ id: 1, subject: "お問い合わせ1", date: "2023-10-01" },
 		{ id: 2, subject: "お問い合わせ2", date: "2023-10-02" },
@@ -39,7 +40,7 @@ export default function RecentInquiries() {
 	});
 
 	return (
-		<Card className="p-4 h-full">
+		<Card className={cn("p-4", className)}>
 			<div className="flex justify-between items-center">
 				<h2 className="text-lg font-semibold">お問い合わせ</h2>
 				<Button variant="link">お問い合わせ一覧へ</Button>

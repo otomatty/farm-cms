@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import {
 	Table,
@@ -8,7 +9,7 @@ import {
 	TableCell,
 } from "@/components/ui/table";
 
-export default function UpdateHistory() {
+export default function UpdateHistory({ className }: { className?: string }) {
 	const updates = [
 		{ id: 1, description: "更新1", date: "2023-10-01" },
 		{ id: 2, description: "更新2", date: "2023-10-02" },
@@ -16,7 +17,7 @@ export default function UpdateHistory() {
 	];
 
 	return (
-		<Card className="p-4 h-full">
+		<Card className={cn("p-4", className)}>
 			<h2 className="text-lg font-semibold">更新履歴</h2>
 			<Table>
 				<TableHeader>
