@@ -12,14 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Settings } from "lucide-react";
 import { data } from "./sidebar.data";
-import { TeamSwitcher } from "./sidebar/TeamSwitcher";
+import { OrganizationSwitcher } from "./sidebar/OrganizationSwitcher";
 import { MainMenu } from "./sidebar/MainMenu";
 import { CommonMenu } from "./sidebar/CommonMenu";
 import { UserMenu } from "./sidebar/UserMenu";
 import { AdminMenu } from "./sidebar/AdminMenu";
 
 export const AppSidebar = () => {
-	const [activeTeam, setActiveTeam] = React.useState(data.teams[0]);
 	// 管理者メニューの表示状態を管理
 	const [showAdminMenu, setShowAdminMenu] = React.useState(false);
 	// 仮の管理者フラグ（実際の実装では認証情報から取得）
@@ -33,11 +32,7 @@ export const AppSidebar = () => {
 	return (
 		<Sidebar collapsible="icon">
 			<SidebarHeader>
-				<TeamSwitcher
-					activeTeam={activeTeam}
-					teams={data.teams}
-					onTeamChange={setActiveTeam}
-				/>
+				<OrganizationSwitcher />
 			</SidebarHeader>
 
 			<SidebarContent>

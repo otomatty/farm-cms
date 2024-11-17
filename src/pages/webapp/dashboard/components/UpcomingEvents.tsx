@@ -1,6 +1,6 @@
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatDateLong } from "@/utils/dateUtils";
+import { formatDateLong } from "@/utils/formatDate";
 import { events } from "@/data/events"; // イベントデータをインポート
 import { Button } from "@/components/ui/button"; // ボタンコンポーネントをインポート
 

@@ -22,17 +22,19 @@ export default function PageViewChart() {
 	const [selectedPeriod] = useAtom(selectedPeriodAtom);
 
 	const filterDataByPeriod = (data: PageViewData[]): PageViewData[] => {
+		const isMonthlyData = data === pageViewData;
+
 		switch (selectedPeriod) {
 			case "year":
-				return pageViewData;
+				return isMonthlyData ? data : pageViewData;
 			case "sixMonths":
-				return pageViewData.slice(-3);
+				return isMonthlyData ? data.slice(-3) : pageViewData.slice(-3);
 			case "month":
-				return dailyPageViewData.slice(-30);
+				return isMonthlyData ? dailyPageViewData.slice(-30) : data.slice(-30);
 			case "week":
-				return dailyPageViewData.slice(-7);
+				return isMonthlyData ? dailyPageViewData.slice(-7) : data.slice(-7);
 			default:
-				return pageViewData;
+				return isMonthlyData ? data : pageViewData;
 		}
 	};
 
@@ -42,7 +44,7 @@ export default function PageViewChart() {
 			: dailyPageViewData,
 	);
 
-	// 数値��計算
+	// 数値計算
 	let currentPeriodViews = 0;
 	let previousPeriodViews = 0;
 	let comparison = 0;

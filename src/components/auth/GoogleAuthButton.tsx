@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/common/icons";
 
 interface GoogleAuthButtonProps {
 	variant?: "default" | "outline";

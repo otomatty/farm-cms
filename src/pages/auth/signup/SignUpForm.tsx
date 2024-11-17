@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -13,34 +13,19 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Icons } from "@/components/icons";
-
-const signUpSchema = z
-	.object({
-		email: z
-			.string()
-			.min(1, { message: "メールアドレスを入力してください" })
-			.email({ message: "有効なメールアドレスを入力してください" }),
-		password: z
-			.string()
-			.min(8, { message: "パスワードは8文字以上で入力してください" })
-			.regex(/^(?=.*[A-Za-z])(?=.*\d)/, {
-				message: "パスワードは英字と数字を含める必要があります",
-			}),
-		confirmPassword: z
-			.string()
-			.min(1, { message: "パスワードを再入力してください" }),
-	})
-	.refine((data) => data.password === data.confirmPassword, {
-		message: "パスワードが一致しません",
-		path: ["confirmPassword"],
-	});
-
-type SignUpFormValues = z.infer<typeof signUpSchema>;
+import { Icons } from "@/components/common/icons";
+import { RefreshCcw, Eye, EyeOff } from "lucide-react";
+import { signUpSchema, type SignUpFormValues } from "@/schemas/auth";
+import { generateSecurePassword } from "@/utils/generatePassword";
+import { useNavigate } from "react-router-dom";
 
 export const SignUpForm = () => {
 	const { signUp } = useAuth();
+	const { toast } = useToast();
 	const [isLoading, setIsLoading] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+	const navigate = useNavigate();
 
 	const form = useForm<SignUpFormValues>({
 		resolver: zodResolver(signUpSchema),
@@ -60,18 +45,33 @@ export const SignUpForm = () => {
 			});
 
 			if (error) {
-				// エラーメッセージの表示（後でトースト通知などを実装）
-				console.error("サインアップエラー:", error.message);
+				toast({
+					variant: "destructive",
+					title: "サインアップエラー",
+					description: getAuthErrorMessage(error.message),
+				});
 				return;
 			}
 
-			// 成功メッセージの表示（後でトースト通知などを実装）
-			console.log("サインアップ成功");
+			navigate("/auth/verify-email", {
+				state: { email: values.email },
+				replace: true,
+			});
 		} catch (error) {
-			console.error("予期せぬエラーが発生しました:", error);
+			toast({
+				variant: "destructive",
+				title: "エラーが発生しました",
+				description: "しばらく時間をおいて再度お試しください",
+			});
 		} finally {
 			setIsLoading(false);
 		}
+	};
+
+	const handleGeneratePassword = () => {
+		const generatedPassword = generateSecurePassword();
+		form.setValue("password", generatedPassword);
+		form.setValue("confirmPassword", generatedPassword);
 	};
 
 	return (
@@ -101,14 +101,45 @@ export const SignUpForm = () => {
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>パスワード</FormLabel>
-							<FormControl>
-								<Input
-									placeholder="8文字以上の英数字"
-									type="password"
+							<div className="flex gap-2">
+								<div className="relative flex-1">
+									<FormControl>
+										<Input
+											placeholder="8文字以上の英数字"
+											type={showPassword ? "text" : "password"}
+											disabled={isLoading}
+											{...field}
+										/>
+									</FormControl>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										className="absolute right-2 top-1/2 -translate-y-1/2"
+										onClick={() => setShowPassword(!showPassword)}
+										disabled={isLoading}
+										title={
+											showPassword ? "パスワードを隠す" : "パスワードを表示"
+										}
+									>
+										{showPassword ? (
+											<EyeOff className="h-4 w-4" />
+										) : (
+											<Eye className="h-4 w-4" />
+										)}
+									</Button>
+								</div>
+								<Button
+									type="button"
+									variant="outline"
+									size="icon"
+									onClick={handleGeneratePassword}
 									disabled={isLoading}
-									{...field}
-								/>
-							</FormControl>
+									title="パスワードを自動生成"
+								>
+									<RefreshCcw className="h-4 w-4" />
+								</Button>
+							</div>
 							<FormMessage />
 						</FormItem>
 					)}
@@ -119,14 +150,35 @@ export const SignUpForm = () => {
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>パスワード（確認）</FormLabel>
-							<FormControl>
-								<Input
-									placeholder="パスワードを再入力"
-									type="password"
+							<div className="relative">
+								<FormControl>
+									<Input
+										placeholder="パスワードを再入力"
+										type={showConfirmPassword ? "text" : "password"}
+										disabled={isLoading}
+										{...field}
+									/>
+								</FormControl>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									className="absolute right-2 top-1/2 -translate-y-1/2"
+									onClick={() => setShowConfirmPassword(!showConfirmPassword)}
 									disabled={isLoading}
-									{...field}
-								/>
-							</FormControl>
+									title={
+										showConfirmPassword
+											? "パスワードを隠す"
+											: "パスワードを表示"
+									}
+								>
+									{showConfirmPassword ? (
+										<EyeOff className="h-4 w-4" />
+									) : (
+										<Eye className="h-4 w-4" />
+									)}
+								</Button>
+							</div>
 							<FormMessage />
 						</FormItem>
 					)}
@@ -138,4 +190,20 @@ export const SignUpForm = () => {
 			</form>
 		</Form>
 	);
+};
+
+// エラーメッセージのヘルパー関数
+const getAuthErrorMessage = (errorMessage: string): string => {
+	switch (errorMessage) {
+		case "User already registered":
+			return "このメールアドレスは既に登録されています";
+		case "Invalid email":
+			return "無効なメールアドレスです";
+		case "Signup requires a valid password":
+			return "有効なパスワードを入力してください";
+		case "Email address cannot be used as it is not authorized":
+			return "このメールドメインでの登録は許可されていません";
+		default:
+			return "サインアップに失敗しました";
+	}
 };

@@ -12,43 +12,62 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
-import supabase from "@/lib/supabase";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-
-const user = {
-	firstName: "太郎",
-	lastName: "山田",
-	email: "taro.yamada@example.com",
-};
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 export function UserMenu() {
 	const navigate = useNavigate();
 	const { toast } = useToast();
+	const { signOut } = useAuth();
+	const { profileData, isLoading } = useUserProfile();
 
 	// イニシャルを生成する関数
-	const getInitials = (firstName: string, lastName: string) => {
-		return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+	const getInitials = (fullName: string) => {
+		return fullName
+			.split(" ")
+			.map((name) => name.charAt(0))
+			.join("")
+			.toUpperCase();
 	};
 
-	// ログアウト処理の実装
+	// ログアウト処理
 	const handleLogout = async () => {
 		try {
-			await supabase.auth.signOut();
+			await signOut();
 			toast({
-				title: "成功",
+				title: "ログアウト",
 				description: "ログアウトしました",
 			});
-			navigate("/auth/login"); // ログインページへリダイレクト
+			navigate("/auth/login");
 		} catch (error) {
 			console.error("ログアウトエラー:", error);
 			toast({
 				title: "エラー",
 				description: "ログアウトに失敗しました",
+				variant: "destructive",
 			});
 		}
 	};
+
+	if (isLoading) {
+		return (
+			<SidebarMenu>
+				<SidebarMenuItem>
+					<SidebarMenuButton size="lg">
+						<LoadingSpinner className="w-5 h-5" />
+					</SidebarMenuButton>
+				</SidebarMenuItem>
+			</SidebarMenu>
+		);
+	}
+
+	if (!profileData) {
+		return null;
+	}
 
 	return (
 		<SidebarMenu>
@@ -60,15 +79,16 @@ export function UserMenu() {
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
 							<Avatar className="h-8 w-8 mr-2">
+								<AvatarImage src={profileData.profile_image} />
 								<AvatarFallback>
-									{getInitials(user.firstName, user.lastName)}
+									{getInitials(profileData.full_name)}
 								</AvatarFallback>
 							</Avatar>
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-semibold">
-									{`${user.lastName}${user.firstName}`}
+									{profileData.full_name}
 								</span>
-								<span className="truncate text-xs">{user.email}</span>
+								<span className="truncate text-xs">{profileData.email}</span>
 							</div>
 							<ChevronsUpDown className="ml-auto size-4" />
 						</SidebarMenuButton>

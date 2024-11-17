@@ -68,21 +68,6 @@ export const AppHeader = () => {
 				</div>
 
 				<div className="flex flex-1 items-center justify-end space-x-4">
-					{/* 新規作成ボタン */}
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button size="sm" className="hidden md:flex">
-								<Plus className="mr-2 h-4 w-4" />
-								新規作成
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-56">
-							<DropdownMenuItem>新規プロジェクト</DropdownMenuItem>
-							<DropdownMenuItem>新規タスク</DropdownMenuItem>
-							<DropdownMenuItem>新規メンバー招待</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-
 					{/* 通知 */}
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>

@@ -1,92 +1,94 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAtom } from "jotai";
 import type {
 	AuthError,
 	User,
 	AuthResponse,
 	OAuthResponse,
 	Provider,
+	Session,
 } from "@supabase/supabase-js";
-import supabase from "@/lib/supabase";
-import { userAtom, sessionAtom } from "@/stores/authAtom";
 import * as authService from "@/services/authService";
-import type {
-	SignInParams,
-	SignUpParams,
-	ProfileData,
-} from "@/services/authService";
+import type { SignInParams, SignUpParams } from "@/services/authService";
+import { supabase } from "@/lib/supabase";
+import { userProfileService } from "@/services/userProfileService";
 
 export const useAuth = () => {
 	const navigate = useNavigate();
-	const [user, setUser] = useAtom(userAtom);
-	const [session, setSession] = useAtom(sessionAtom);
 	const [isLoading, setIsLoading] = useState(true);
+	const [session, setSession] = useState<Session | null>(null);
+	const [user, setUser] = useState<User | null>(null);
 
+	// セッションとユーザー情報の初期化と監視
 	useEffect(() => {
-		const initializeAuth = async () => {
-			setIsLoading(true);
-			try {
-				const {
-					data: { session: currentSession },
-				} = await supabase.auth.getSession();
-				if (currentSession) {
-					setSession(currentSession);
-					setUser(currentSession.user);
-				} else {
-					setSession(null);
-					setUser(null);
-				}
-			} catch (error) {
-				console.error("認証の初期化に失敗しました:", error);
-				setSession(null);
-				setUser(null);
-			} finally {
-				setIsLoading(false);
-			}
-		};
+		// 現在のセッションを取得
+		supabase.auth.getSession().then(({ data: { session } }) => {
+			setSession(session);
+			setUser(session?.user ?? null);
+			setIsLoading(false);
+		});
 
-		initializeAuth();
-
+		// セッションの変更を監視
 		const {
 			data: { subscription },
-		} = supabase.auth.onAuthStateChange(async (event, session) => {
-			if (event === "SIGNED_IN") {
-				setSession(session);
-				setUser(session?.user ?? null);
-			} else if (event === "SIGNED_OUT") {
-				setSession(null);
-				setUser(null);
-				navigate("/auth/login");
-			} else if (event === "TOKEN_REFRESHED") {
-				setSession(session);
-				setUser(session?.user ?? null);
-			}
+		} = supabase.auth.onAuthStateChange((_event, session) => {
+			setSession(session);
+			setUser(session?.user ?? null);
+			setIsLoading(false);
 		});
 
 		return () => subscription.unsubscribe();
-	}, [setSession, setUser, navigate]);
+	}, []);
 
+	// サインアップ
 	const signUp = useCallback(
 		async (params: SignUpParams): Promise<AuthResponse> => {
+			console.log("useAuth signUp called with:", params);
+			setIsLoading(true);
 			try {
-				return await authService.signUp(params);
+				const response = await authService.signUp(params);
+				console.log("useAuth signUp response:", response);
+				if (response.error) {
+					throw response.error;
+				}
+				if (response.data.user) {
+					setUser(response.data.user);
+				}
+				return response;
 			} catch (error) {
+				console.error("useAuth signUp error:", error);
 				return {
 					data: { user: null, session: null },
 					error: error as AuthError,
 				};
+			} finally {
+				setIsLoading(false);
 			}
 		},
 		[],
 	);
 
+	// サインイン
 	const signIn = useCallback(
 		async (params: SignInParams): Promise<AuthResponse> => {
+			setIsLoading(true);
 			try {
 				const result = await authService.signIn(params);
 				if (!result.error && result.data.session) {
-					navigate("/dashboard");
+					setSession(result.data.session);
+					setUser(result.data.session.user);
+
+					// プロフィールの存在確認
+					const hasProfile = await userProfileService.checkUserProfileExists(
+						result.data.session.user.id,
+					);
+
+					// 遷移先の振り分け
+					if (hasProfile) {
+						navigate("/webapp");
+					} else {
+						navigate("/webapp/setup");
+					}
 				}
 				return result;
 			} catch (error) {
@@ -94,27 +96,36 @@ export const useAuth = () => {
 					data: { user: null, session: null },
 					error: error as AuthError,
 				};
+			} finally {
+				setIsLoading(false);
 			}
 		},
 		[navigate],
 	);
 
+	// サインアウト
 	const signOut = useCallback(async (): Promise<{
 		error: AuthError | null;
 	}> => {
+		setIsLoading(true);
 		try {
 			const result = await authService.signOut();
 			if (!result.error) {
-				navigate("/login");
+				setSession(null);
+				setUser(null);
+				navigate("/auth/login");
 			}
 			return result;
 		} catch (error) {
 			return {
 				error: error as AuthError,
 			};
+		} finally {
+			setIsLoading(false);
 		}
 	}, [navigate]);
 
+	// パスワードリセット
 	const resetPassword = useCallback(
 		async (email: string): Promise<{ error: AuthError | null }> => {
 			try {
@@ -128,12 +139,17 @@ export const useAuth = () => {
 		[],
 	);
 
+	// パスワード更新
 	const updatePassword = useCallback(
 		async (
 			newPassword: string,
 		): Promise<{ data: { user: User | null }; error: AuthError | null }> => {
 			try {
-				return await authService.updatePassword(newPassword);
+				const result = await authService.updatePassword(newPassword);
+				if (result.data.user) {
+					setUser(result.data.user);
+				}
+				return result;
 			} catch (error) {
 				return {
 					data: { user: null },
@@ -144,22 +160,7 @@ export const useAuth = () => {
 		[],
 	);
 
-	const updateProfile = useCallback(
-		async (
-			userData: ProfileData,
-		): Promise<{ data: { user: User | null }; error: AuthError | null }> => {
-			try {
-				return await authService.updateProfile(userData);
-			} catch (error) {
-				return {
-					data: { user: null },
-					error: error as AuthError,
-				};
-			}
-		},
-		[],
-	);
-
+	// Google認証
 	const signInWithGoogle = useCallback(async (): Promise<OAuthResponse> => {
 		try {
 			const result = await authService.signInWithGoogle();
@@ -172,20 +173,57 @@ export const useAuth = () => {
 		}
 	}, []);
 
-	const handleAuthCallback = useCallback(async () => {
+	// 認証コールバック
+	const handleAuthCallback = async () => {
 		try {
-			const result = await authService.handleAuthCallback();
-			if (result.data.session) {
-				navigate("/dashboard");
+			// URLパラメータの取得方法を修正
+			const params = new URLSearchParams(window.location.search);
+			const hashParams = new URLSearchParams(window.location.hash.substring(1));
+
+			// デバッグ情報の追加
+			console.log("Auth Callback Debug:", {
+				fullUrl: window.location.href,
+				search: window.location.search,
+				hash: window.location.hash,
+				code: params.get("code"),
+				error: params.get("error"),
+				accessToken: hashParams.get("access_token"),
+			});
+
+			// Supabaseの組み込み関数を使用してセッションを取得
+			const {
+				data: { session },
+				error,
+			} = await supabase.auth.getSession();
+
+			if (error) {
+				console.error("セッション取得エラー:", error);
+				throw error;
 			}
-			return result;
+
+			if (!session) {
+				// セッションがない場合は、URLからの情報を使用して認証を試みる
+				const { data, error: exchangeError } =
+					await supabase.auth.exchangeCodeForSession(params.get("code") || "");
+
+				if (exchangeError) {
+					console.error("コード交換エラー:", exchangeError);
+					throw exchangeError;
+				}
+
+				return { data, error: null };
+			}
+
+			return { data: { session }, error: null };
 		} catch (error) {
+			console.error("認証コールバックエラー:", error);
 			return {
 				data: { session: null },
-				error: error as AuthError,
+				error:
+					error instanceof Error ? error : new Error("Unknown error occurred"),
 			};
 		}
-	}, [navigate]);
+	};
 
 	return {
 		user,
@@ -196,9 +234,7 @@ export const useAuth = () => {
 		signOut,
 		resetPassword,
 		updatePassword,
-		updateProfile,
 		signInWithGoogle,
 		handleAuthCallback,
-		isAuthenticated: !!session,
 	} as const;
 };

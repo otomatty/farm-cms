@@ -1,6 +1,6 @@
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatDateLong } from "@/utils/dateUtils";
+import { formatDateLong } from "@/utils/formatDate";
 
 interface EventSheetProps {
 	isOpen: boolean;

@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/common/icons";
+import { userProfileService } from "@/services/userProfileService";
 
 export const CallbackPage = () => {
 	const { handleAuthCallback } = useAuth();
@@ -11,30 +12,50 @@ export const CallbackPage = () => {
 	useEffect(() => {
 		const processCallback = async () => {
 			try {
+				// デバッグ情報
+				console.log("Callback Page Debug:", {
+					currentUrl: window.location.href,
+					search: window.location.search,
+					hash: window.location.hash,
+				});
+
 				const { data, error } = await handleAuthCallback();
+				console.log("認証コールバックの結果:", { data, error });
 
 				if (error) {
-					console.error("認証エラー:", error.message);
-					navigate("/auth/login", {
+					console.error("認証エラー:", error);
+					navigate("/auth/login?error=auth", {
 						replace: true,
-						state: { error: "認証に失敗しました。もう一度お試しください。" },
+						state: {
+							error: "認証に失敗しました。もう一度お試しください。",
+							details: error.message,
+						},
 					});
 					return;
 				}
 
-				if (data.session) {
-					// 認証成功時はダッシュボードにリダイレクト
-					navigate("/webapp", { replace: true });
-				} else {
-					// セッションがない場合はログインページに戻る
-					navigate("/auth/login", {
+				if (!data?.session) {
+					console.error("セッションなし:", data);
+					navigate("/auth/login?error=session", {
 						replace: true,
 						state: { error: "認証セッションの取得に失敗しました。" },
 					});
+					return;
+				}
+
+				// ユーザープロフィールの存在確認
+				const hasProfile = await userProfileService.checkUserProfileExists(
+					data.session.user.id,
+				);
+
+				if (hasProfile) {
+					navigate("/webapp", { replace: true });
+				} else {
+					navigate("/webapp/setup", { replace: true });
 				}
 			} catch (error) {
 				console.error("予期せぬエラーが発生しました:", error);
-				navigate("/auth/login", {
+				navigate("/auth/login?error=unexpected", {
 					replace: true,
 					state: { error: "認証処理中にエラーが発生しました。" },
 				});
