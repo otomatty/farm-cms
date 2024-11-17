@@ -40,7 +40,7 @@ export interface UserOrganization {
 	id: number;
 	user_id: string;
 	organization_id: string;
-	role: string;
+	role: OrganizationRole;
 	created_at: string;
 	updated_at: string;
 }
@@ -52,3 +52,45 @@ export interface UserOrganizationWithDetails extends Organization {
 
 // roleの型を定義（型安全性の向上）
 export type OrganizationRole = "owner" | "admin" | "member";
+
+// UI用の型定義を追加
+export interface OrganizationMember {
+	id: string; // user_id
+	name: string; // user_profilesから
+	email: string; // user_profilesから
+	role: OrganizationRole; // UserOrganizationのrole
+	joinedAt: string; // UserOrganizationのcreated_at
+}
+
+// テーブルのrow型として使用
+export interface OrganizationMemberRow extends OrganizationMember {
+	actions?: React.ReactNode; // アクションカラム用
+}
+
+// データベースから取得する生のデータの型
+export interface RawOrganizationMemberData {
+	id: number;
+	role: OrganizationRole;
+	created_at: string;
+	user_profiles: {
+		user_id: string;
+		full_name: string;
+		email: string;
+		profile_image?: string;
+	};
+}
+
+// UI用のメンバー情報の型
+export interface OrganizationMember {
+	id: string; // user_id
+	name: string; // full_name
+	email: string;
+	role: OrganizationRole;
+	profileImage?: string;
+	joinedAt: string; // created_at
+}
+
+// テーブル表示用の拡張型
+export interface OrganizationMemberRow extends OrganizationMember {
+	actions?: React.ReactNode;
+}

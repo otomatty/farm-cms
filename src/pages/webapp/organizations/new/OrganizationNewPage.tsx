@@ -1,4 +1,4 @@
-import { BackLink } from "@/components/common/navigation/BackLink";
+import { BackLink } from "@/components/common/BackLink/BackLink";
 import { OrganizationActionCards } from "@/components/webapp/organization/OrganizationActionCards";
 
 export const OrganizationNewPage = () => {

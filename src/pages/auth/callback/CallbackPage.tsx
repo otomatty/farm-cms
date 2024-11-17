@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
-import { Icons } from "@/components/common/icons";
+import { Icons } from "@/components/common/Icon/Icons";
 import { userProfileService } from "@/services/userProfileService";
 
 export const CallbackPage = () => {
@@ -12,18 +12,9 @@ export const CallbackPage = () => {
 	useEffect(() => {
 		const processCallback = async () => {
 			try {
-				// デバッグ情報
-				console.log("Callback Page Debug:", {
-					currentUrl: window.location.href,
-					search: window.location.search,
-					hash: window.location.hash,
-				});
-
 				const { data, error } = await handleAuthCallback();
-				console.log("認証コールバックの結果:", { data, error });
 
 				if (error) {
-					console.error("認証エラー:", error);
 					navigate("/auth/login?error=auth", {
 						replace: true,
 						state: {
@@ -35,7 +26,6 @@ export const CallbackPage = () => {
 				}
 
 				if (!data?.session) {
-					console.error("セッションなし:", data);
 					navigate("/auth/login?error=session", {
 						replace: true,
 						state: { error: "認証セッションの取得に失敗しました。" },
@@ -54,10 +44,9 @@ export const CallbackPage = () => {
 					navigate("/webapp/setup", { replace: true });
 				}
 			} catch (error) {
-				console.error("予期せぬエラーが発生しました:", error);
 				navigate("/auth/login?error=unexpected", {
 					replace: true,
-					state: { error: "認証処理中にエラーが発生しました。" },
+					state: { error: "認証処理中に予期せぬエラーが発生しました。" },
 				});
 			}
 		};

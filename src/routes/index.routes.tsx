@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { webappRoutes } from "./webapp.routes";
 import { siteRoutes } from "./site.routes";
 import { authRoutes } from "./auth.routes";
+import { setupRoutes } from "./setup.routes";
 
 type ExtendedFutureConfig = {
 	v7_startTransition: boolean;
@@ -13,7 +14,7 @@ type ExtendedFutureConfig = {
 };
 
 export const router = createBrowserRouter(
-	[...webappRoutes, ...siteRoutes, ...authRoutes],
+	[...webappRoutes, ...siteRoutes, ...authRoutes, ...setupRoutes],
 	{
 		future: {
 			v7_startTransition: true,

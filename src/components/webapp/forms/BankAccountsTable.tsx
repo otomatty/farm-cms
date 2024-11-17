@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import ResponsiveDialog from "@/components/common/ResponsiveDialog";
+import ResponsiveDialog from "@/components/common/ResponsiveDialog/ResponsiveDialog";
 import { CreateBankAccountForm } from "@/components/webapp/forms/CreateBankAccountForm";
 
 import type { BankAccount, BankAccountFormValues } from "@/types/bankAccount";

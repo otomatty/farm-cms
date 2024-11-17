@@ -1,5 +1,4 @@
 // セットアップ完了状態のチェック
-// セットアップ完了とは、プロフィールの登録が完了していること
 // user_profilesテーブルのsetup_completedカラムがtrueかどうかで判断する
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";

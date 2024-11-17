@@ -3,7 +3,7 @@ import { useNewsTable } from "./hooks/useNewsTable";
 import { useNewsOperations } from "./hooks/useNewsOperations";
 import { useNewsCreateEditModal } from "./hooks/useNewsCreateEditModal";
 import { NewsTable } from "./components/NewsTable";
-import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner/LoadingSpinner";
 import type { NewsFormValues } from "./types";
 
 export const NewsPage = () => {
@@ -17,8 +17,6 @@ export const NewsPage = () => {
 	const { isOpen, mode, selectedNews, onOpen, onClose } =
 		useNewsCreateEditModal();
 
-	console.log("Modal State:", { isOpen, mode, selectedNews });
-
 	if (error) {
 		return (
 			<div className="flex justify-center items-center h-[50vh]">
@@ -27,7 +25,6 @@ export const NewsPage = () => {
 		);
 	}
 	const handleSubmit = async (formData: NewsFormValues) => {
-		console.log("handleSubmit called with:", formData);
 		if (mode === "create") {
 			await handleCreate(formData);
 		} else if (selectedNews) {
@@ -46,7 +43,6 @@ export const NewsPage = () => {
 					mode={mode}
 					defaultValues={selectedNews}
 					onClose={() => {
-						console.log("Modal closing");
 						onClose();
 					}}
 					onSubmit={handleSubmit}
@@ -62,7 +58,6 @@ export const NewsPage = () => {
 				<NewsTable
 					data={data}
 					onEdit={(news) => {
-						console.log("Edit clicked for news:", news);
 						onOpen("edit", news);
 					}}
 					onDelete={handleDelete}

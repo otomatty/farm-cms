@@ -2,9 +2,6 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { CreateUserProfileForm } from "./CreateUserProfileForm";
 import { BrowserRouter } from "react-router-dom";
 import type { UserProfileFormValues } from "@/schemas/userProfileSchema";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { userProfileSchema } from "@/schemas/userProfileSchema";
 
 // モックデータの型定義
 interface MockData {
@@ -14,34 +11,7 @@ interface MockData {
 }
 
 // useUserProfileフックのモック
-const MockCreateUserProfileForm = ({
-	initialValues,
-	error,
-	isLoading,
-}: MockData = {}) => {
-	const defaultValues: UserProfileFormValues = {
-		full_name: "",
-		email: "",
-		phone_number: "",
-		bio: "",
-		...initialValues,
-	};
-
-	const form = useForm<UserProfileFormValues>({
-		resolver: zodResolver(userProfileSchema),
-		defaultValues,
-	});
-
-	// useUserProfileフックの戻り値をモック
-	const mockHook = () => ({
-		form,
-		createProfile: async (values: UserProfileFormValues) => {
-			console.log("Creating profile:", values);
-		},
-		isLoading: isLoading || false,
-		error: error || null,
-	});
-
+const MockCreateUserProfileForm = () => {
 	// useUserProfileフックをモックしてコンポーネントをレンダリング
 	return (
 		<div className="w-full">

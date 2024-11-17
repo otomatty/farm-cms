@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { LoadingSpinner } from "./components/common/LoadingSpinner";
+import { LoadingSpinner } from "./components/common/LoadingSpinner/LoadingSpinner";
 import { router } from "./routes/index.routes";
 import { supabase } from "./lib/supabase";
 
@@ -41,14 +41,9 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
 		const {
 			data: { subscription },
-		} = supabase.auth.onAuthStateChange((_event, session) => {
+		} = supabase.auth.onAuthStateChange((_event) => {
 			if (initialized) {
 				setIsLoading(false);
-				if (session) {
-					console.log("認証済みユーザー:", session.user);
-				} else {
-					console.log("未認証状態");
-				}
 			}
 		});
 

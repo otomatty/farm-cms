@@ -43,11 +43,9 @@ export const useAuth = () => {
 	// サインアップ
 	const signUp = useCallback(
 		async (params: SignUpParams): Promise<AuthResponse> => {
-			console.log("useAuth signUp called with:", params);
 			setIsLoading(true);
 			try {
 				const response = await authService.signUp(params);
-				console.log("useAuth signUp response:", response);
 				if (response.error) {
 					throw response.error;
 				}
@@ -104,26 +102,25 @@ export const useAuth = () => {
 	);
 
 	// サインアウト
-	const signOut = useCallback(async (): Promise<{
-		error: AuthError | null;
-	}> => {
-		setIsLoading(true);
+	const signOut = useCallback(async (): Promise<{ error: Error | null }> => {
 		try {
-			const result = await authService.signOut();
-			if (!result.error) {
-				setSession(null);
-				setUser(null);
-				navigate("/auth/login");
+			// セットアップ状態をクリア
+			if (session?.user?.id) {
+				localStorage.removeItem(`setup_completed_${session.user.id}`);
 			}
-			return result;
+			const { error } = await supabase.auth.signOut();
+			if (error) throw error;
+			return { error: null };
 		} catch (error) {
+			console.error("Error signing out:", error);
 			return {
-				error: error as AuthError,
+				error:
+					error instanceof Error
+						? error
+						: new Error("サインアウトに失敗しました"),
 			};
-		} finally {
-			setIsLoading(false);
 		}
-	}, [navigate]);
+	}, [session?.user?.id]);
 
 	// パスワードリセット
 	const resetPassword = useCallback(
@@ -178,17 +175,6 @@ export const useAuth = () => {
 		try {
 			// URLパラメータの取得方法を修正
 			const params = new URLSearchParams(window.location.search);
-			const hashParams = new URLSearchParams(window.location.hash.substring(1));
-
-			// デバッグ情報の追加
-			console.log("Auth Callback Debug:", {
-				fullUrl: window.location.href,
-				search: window.location.search,
-				hash: window.location.hash,
-				code: params.get("code"),
-				error: params.get("error"),
-				accessToken: hashParams.get("access_token"),
-			});
 
 			// Supabaseの組み込み関数を使用してセッションを取得
 			const {

@@ -5,10 +5,12 @@ import {
 	organizationsAtom,
 } from "@/stores/organizationAtom";
 import { useOrganization } from "@/hooks/useOrganization";
+import { useToast } from "@/hooks/use-toast";
 import type { UserOrganizationWithDetails } from "@/types/organization";
 
 // 組織の切り替え
 export const useOrganizationSwitcher = () => {
+	const { toast } = useToast();
 	const [currentOrganization, setCurrentOrganization] = useAtom(
 		currentOrganizationAtom,
 	);
@@ -19,18 +21,24 @@ export const useOrganizationSwitcher = () => {
 		try {
 			const orgs = await getOrganizations();
 			setOrganizations(orgs);
-			// 初回ロード時に組織が未設定の場合、最初の組織を選択
-			if (!currentOrganization && orgs.length > 0) {
+
+			if (orgs.length > 0 && !currentOrganization) {
 				setCurrentOrganization(orgs[0]);
 			}
 		} catch (error) {
-			console.error("組織の読み込みに失敗しました", error);
+			toast({
+				variant: "destructive",
+				title: "組織の読み込みに失敗しました",
+				description: "組織の読み込みに失敗しました",
+			});
+			setOrganizations([]);
 		}
 	}, [
 		getOrganizations,
 		setOrganizations,
 		currentOrganization,
 		setCurrentOrganization,
+		toast,
 	]);
 
 	const switchOrganization = useCallback(

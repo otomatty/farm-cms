@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import type { OrganizationFormValues } from "@/schemas/organizationSchema";
 import { usePostalCode } from "@/hooks/usePostalCode";
-import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner/LoadingSpinner";
 import { formatPostalCode } from "@/utils/formatPostalCode";
 import { BankAccountsTable } from "@/components/webapp/forms/BankAccountsTable";
 

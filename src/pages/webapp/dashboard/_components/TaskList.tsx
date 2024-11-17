@@ -21,7 +21,7 @@ import {
 	DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
-import ResponsiveDialog from "@/components/common/ResponsiveDialog";
+import ResponsiveDialog from "@/components/common/ResponsiveDialog/ResponsiveDialog";
 import { TaskForm } from "@/components/webapp/forms/TaskForm";
 
 export default function TaskList({ className }: { className?: string }) {

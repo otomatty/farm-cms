@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,9 @@ import { completeSetup } from "@/services/setupService";
 import { useAuth } from "@/hooks/useAuth";
 import { UserInfoCard } from "@/components/auth/UserInfoCard";
 import { useSetupStatus } from "@/hooks/useSetupStatus";
-import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner/LoadingSpinner";
+import { useOrganizationSwitcher } from "@/hooks/useOrganizationSwitcher";
+import { useSetupStore } from "@/stores/setupStore";
 
 const cardVariants = {
 	initial: { scale: 1 },
@@ -37,10 +40,15 @@ export const SetupPage = () => {
 	const navigate = useNavigate();
 	const { toast } = useToast();
 	const { session, signOut } = useAuth();
+	const { loadOrganizations } = useOrganizationSwitcher();
 	const { isProfileCompleted, isOrganizationCompleted, isLoading } =
 		useSetupStatus();
+	const {
+		isProfileCompleted: storeIsProfileCompleted,
+		isOrganizationCompleted: storeIsOrganizationCompleted,
+	} = useSetupStore();
 
-	const handleSetupComplete = async () => {
+	const handleSetupComplete = useCallback(async () => {
 		if (!session?.user?.id) {
 			toast({
 				title: "エラー",
@@ -50,24 +58,36 @@ export const SetupPage = () => {
 			return;
 		}
 
-		try {
-			if (!isProfileCompleted || !isOrganizationCompleted) {
-				toast({
-					title: "エラー",
-					description: "プロフィールと組織の設定を完了してください",
-					variant: "destructive",
-				});
-				return;
-			}
+		if (!storeIsProfileCompleted || !storeIsOrganizationCompleted) {
+			toast({
+				title: "エラー",
+				description: "プロフィールと組織の設定を完了してください",
+				variant: "destructive",
+			});
+			return;
+		}
 
+		try {
+			console.log("Calling completeSetup");
 			await completeSetup(session.user.id);
+			console.log("Setup completed successfully");
+
+			await loadOrganizations();
+			console.log("Organizations reloaded");
+
+			if (session.user.id) {
+				localStorage.setItem(`setup_completed_${session.user.id}`, "true");
+			}
 
 			toast({
 				title: "セットアップが完了しました",
 				description: "ダッシュボードに移動します",
 			});
 
-			navigate("/webapp");
+			navigate("/webapp", {
+				replace: true,
+				state: { setupCompleted: true },
+			});
 		} catch (error) {
 			console.error("Failed to complete setup:", error);
 			toast({
@@ -79,7 +99,14 @@ export const SetupPage = () => {
 				variant: "destructive",
 			});
 		}
-	};
+	}, [
+		session?.user?.id,
+		storeIsProfileCompleted,
+		storeIsOrganizationCompleted,
+		loadOrganizations,
+		navigate,
+		toast,
+	]);
 
 	const handleSignOut = async () => {
 		try {

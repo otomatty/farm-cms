@@ -13,7 +13,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Icons } from "@/components/common/icons";
+import { Icons } from "@/components/common/Icon/Icons";
 
 const resetPasswordSchema = z.object({
 	email: z

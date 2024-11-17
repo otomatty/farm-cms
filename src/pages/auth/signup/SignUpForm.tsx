@@ -13,7 +13,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Icons } from "@/components/common/icons";
+import { Icons } from "@/components/common/Icon/Icons";
 import { RefreshCcw, Eye, EyeOff } from "lucide-react";
 import { signUpSchema, type SignUpFormValues } from "@/schemas/auth";
 import { generateSecurePassword } from "@/utils/generatePassword";

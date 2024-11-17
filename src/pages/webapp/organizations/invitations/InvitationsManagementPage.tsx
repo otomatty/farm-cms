@@ -1,3 +1,4 @@
+// 招待一覧ページ
 import { DataTable } from "@/components/ui/data-table";
 
 // TODO: types/invite.tsで型定義

@@ -1,4 +1,4 @@
-import ResponsiveDialog from "@/components/common/ResponsiveDialog";
+import ResponsiveDialog from "@/components/common/ResponsiveDialog/ResponsiveDialog";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { NewsForm } from "./NewsForm";

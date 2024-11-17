@@ -15,6 +15,7 @@ import type { UserProfileFormValues } from "@/schemas/userProfileSchema";
 
 interface CreateUserProfileFormProps {
 	onSuccess?: () => void;
+	onSubmit?: (values: UserProfileFormValues) => Promise<void>;
 	initialData?: {
 		email?: string;
 		full_name?: string;
@@ -26,6 +27,7 @@ interface CreateUserProfileFormProps {
 
 export function CreateUserProfileForm({
 	onSuccess,
+	onSubmit: externalSubmit,
 	initialData,
 }: CreateUserProfileFormProps) {
 	const { form, createProfile, isLoading, error } = useUserProfile({
@@ -43,9 +45,15 @@ export function CreateUserProfileForm({
 		form.setValue("profile_image", initialData?.profile_image ?? "");
 	};
 
-	const onSubmit = async (values: UserProfileFormValues) => {
+	const handleSubmit = async (values: UserProfileFormValues) => {
 		try {
-			await createProfile(values);
+			if (externalSubmit) {
+				// 外部から提供されたonSubmitを使用
+				await externalSubmit(values);
+			} else {
+				// デフォルトの動作
+				await createProfile(values);
+			}
 			onSuccess?.();
 		} catch (err) {
 			// エラー処理はuseUserProfile内で行われます
@@ -54,7 +62,7 @@ export function CreateUserProfileForm({
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+			<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
 				{error && <div className="text-red-500">{error}</div>}
 
 				<FormField

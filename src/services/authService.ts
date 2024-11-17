@@ -62,18 +62,10 @@ export const signUp = async ({
 			},
 		};
 
-		console.log("SignUp options:", signUpOptions);
-
 		const response = await supabase.auth.signUp({
 			email,
 			password,
 			options: signUpOptions,
-		});
-
-		console.log("Supabase signUp response:", {
-			user: response.data.user,
-			error: response.error,
-			confirmationSent: response.data.user?.confirmation_sent_at,
 		});
 
 		return response;

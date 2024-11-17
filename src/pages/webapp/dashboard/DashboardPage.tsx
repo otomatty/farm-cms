@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import TaskList from "./components/TaskList";
-import Analytics from "./components/Analytics";
-import RecentInquiries from "./components/RecentInquiries";
-import UpdateHistory from "./components/UpdateHistory";
-import EventCalendar from "./components/EventCalendar";
+import TaskList from "./_components/TaskList";
+import Analytics from "./_components/Analytics";
+import RecentInquiries from "./_components/RecentInquiries";
+import UpdateHistory from "./_components/UpdateHistory";
+import EventCalendar from "./_components/EventCalendar";
 
 export const DashboardPage = () => {
 	useEffect(() => {
