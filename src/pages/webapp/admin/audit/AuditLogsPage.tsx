@@ -1,4 +1,3 @@
-import { AdminPageHeader } from "@/components/webapp/admin/AdminPageHeader";
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./_components/columns";
@@ -10,10 +9,12 @@ export const AuditLogsPage = () => {
 
 	return (
 		<div className="space-y-6">
-			<AdminPageHeader
-				title="監査ログ"
-				description="システムの操作履歴を確認できます"
-			/>
+			<div className="flex items-center justify-between">
+				<h1 className="text-2xl font-bold">監査ログ</h1>
+				<p className="text-sm text-muted-foreground">
+					システムの操作履歴を確認できます
+				</p>
+			</div>
 
 			<Card>
 				<AuditLogFilters filters={filters} setFilters={setFilters} />

@@ -1,4 +1,3 @@
-import { AdminPageHeader } from "@/components/webapp/admin/AdminPageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Select,
@@ -14,10 +13,12 @@ export const ContentPermissionsPage = () => {
 
 	return (
 		<div className="space-y-6">
-			<AdminPageHeader
-				title="コンテンツ権限"
-				description="各コンテンツタイプの編集権限を設定します"
-			/>
+			<div className="flex items-center justify-between">
+				<h1 className="text-2xl font-bold">コンテンツ権限</h1>
+				<p className="text-sm text-muted-foreground">
+					各コンテンツタイプの編集権限を設定します
+				</p>
+			</div>
 			<Card>
 				<CardHeader>
 					<CardTitle>権限設定</CardTitle>

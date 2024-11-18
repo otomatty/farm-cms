@@ -1,4 +1,3 @@
-import { AdminPageHeader } from "@/components/webapp/admin/AdminPageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IntegrationCard } from "./_components/IntegrationCard";
 import { useIntegrations } from "./_hooks/useIntegrations";
@@ -9,10 +8,12 @@ export const IntegrationsPage = () => {
 
 	return (
 		<div className="space-y-6">
-			<AdminPageHeader
-				title="インテグレーション"
-				description="外部サービスとの連携を管理します"
-			/>
+			<div className="flex items-center justify-between">
+				<h1 className="text-2xl font-bold">インテグレーション</h1>
+				<p className="text-sm text-muted-foreground">
+					外部サービスとの連携を管理します
+				</p>
+			</div>
 
 			<Card>
 				<CardHeader>
