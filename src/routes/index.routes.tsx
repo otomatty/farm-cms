@@ -3,6 +3,7 @@ import { webappRoutes } from "./webapp.routes";
 import { siteRoutes } from "./site.routes";
 import { authRoutes } from "./auth.routes";
 import { setupRoutes } from "./setup.routes";
+import { adminRoutes } from "./admin.routes";
 
 type ExtendedFutureConfig = {
 	v7_startTransition: boolean;
@@ -14,7 +15,13 @@ type ExtendedFutureConfig = {
 };
 
 export const router = createBrowserRouter(
-	[...webappRoutes, ...siteRoutes, ...authRoutes, ...setupRoutes],
+	[
+		...webappRoutes,
+		...siteRoutes,
+		...authRoutes,
+		...setupRoutes,
+		...adminRoutes,
+	],
 	{
 		future: {
 			v7_startTransition: true,

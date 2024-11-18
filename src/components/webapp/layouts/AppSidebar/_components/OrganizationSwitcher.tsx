@@ -1,4 +1,4 @@
-import { Building2, ChevronsUpDown, Plus } from "lucide-react";
+import { Building, Building2, ChevronsUpDown, Plus } from "lucide-react";
 import {
 	SidebarMenu,
 	SidebarMenuItem,
@@ -66,6 +66,13 @@ export const OrganizationSwitcher = () => {
 						<DropdownMenuLabel className="text-xs text-muted-foreground">
 							組織
 						</DropdownMenuLabel>
+						<DropdownMenuItem
+							onClick={() => navigate("/webapp/organizations")}
+							className="cursor-pointer"
+						>
+							<Building className="mr-2 h-4 w-4" />
+							組織一覧を見る
+						</DropdownMenuItem>
 						{organizations.map((org, index) => (
 							<DropdownMenuItem
 								key={org.id}

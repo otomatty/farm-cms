@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
 	Table,
 	TableBody,
@@ -49,6 +50,8 @@ const getRoleLabel = (role: OrganizationRole) => {
 export const OrganizationsTable = ({
 	organizations,
 }: OrganizationsTableProps) => {
+	const navigate = useNavigate();
+
 	return (
 		<div className="rounded-md border">
 			<Table>
@@ -95,7 +98,22 @@ export const OrganizationsTable = ({
 									<DropdownMenuContent align="end">
 										<DropdownMenuItem>詳細を表示</DropdownMenuItem>
 										{org.role === "owner" && (
-											<DropdownMenuItem>設定を編集</DropdownMenuItem>
+											<>
+												<DropdownMenuItem
+													onClick={() =>
+														navigate("/webapp/admin/organizations/edit")
+													}
+												>
+													設定を編集
+												</DropdownMenuItem>
+												<DropdownMenuItem
+													onClick={() =>
+														navigate("/webapp/admin/organizations/invite")
+													}
+												>
+													ユーザーを招待
+												</DropdownMenuItem>
+											</>
 										)}
 										<DropdownMenuItem className="text-destructive">
 											組織から退出

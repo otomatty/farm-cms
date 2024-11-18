@@ -1,4 +1,4 @@
-import { User, ChevronsUpDown, LogOut } from "lucide-react";
+import { User, ChevronsUpDown, LogOut, Building2 } from "lucide-react";
 import {
 	SidebarMenu,
 	SidebarMenuItem,
@@ -102,6 +102,13 @@ export function UserMenu() {
 						>
 							<User className="mr-2 h-4 w-4" />
 							プロフィール
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={() => navigate("/webapp/organizations")}
+							className="cursor-pointer"
+						>
+							<Building2 className="mr-2 h-4 w-4" />
+							組織一覧
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem

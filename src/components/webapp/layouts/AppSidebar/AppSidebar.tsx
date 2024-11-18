@@ -17,12 +17,15 @@ import { MainMenu } from "./_components/MainMenu";
 import { CommonMenu } from "./_components/CommonMenu";
 import { UserMenu } from "./_components/UserMenu";
 import { AdminMenu } from "./_components/AdminMenu";
+import { useAtomValue } from "jotai";
+import { currentOrganizationRoleAtom } from "@/stores/organizationAtom";
 
 export const AppSidebar = () => {
 	// 管理者メニューの表示状態を管理
 	const [showAdminMenu, setShowAdminMenu] = React.useState(false);
 	// 仮の管理者フラグ（実際の実装では認証情報から取得）
-	const isAdmin = true;
+	const currentRole = useAtomValue(currentOrganizationRoleAtom);
+	const isAdmin = currentRole === "owner" || currentRole === "admin";
 
 	// 管理者メニューの切り替え
 	const toggleAdminMenu = () => {
