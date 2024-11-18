@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useOrganizationSettings } from "../_hooks/useOrganizationSettings";
-import { LoadingButton } from "@/components/ui/loading-button";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 export const OrganizationSettingsForm = () => {
 	const { form, onSubmit, isLoading } = useOrganizationSettings();
@@ -86,9 +87,10 @@ export const OrganizationSettingsForm = () => {
 					)}
 				/>
 
-				<LoadingButton type="submit" loading={isLoading}>
+				<Button type="submit" disabled={isLoading}>
+					{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
 					保存
-				</LoadingButton>
+				</Button>
 			</form>
 		</Form>
 	);

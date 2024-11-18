@@ -1,5 +1,5 @@
 import { useAtom } from "jotai";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import {
 	currentOrganizationAtom,
 	organizationsAtom,
@@ -17,19 +17,30 @@ export const useOrganizationSwitcher = () => {
 	const [organizations, setOrganizations] = useAtom(organizationsAtom);
 	const { getOrganizations } = useOrganization();
 
+	// 初回マウント時に組織情報を読み込む
+	useEffect(() => {
+		loadOrganizations();
+	}, []);
+
 	const loadOrganizations = useCallback(async () => {
 		try {
 			const orgs = await getOrganizations();
 			setOrganizations(orgs);
 
-			if (orgs.length > 0 && !currentOrganization) {
+			// 現在の組織が存在しない、または組織リストに含まれていない場合のみ更新
+			if (
+				orgs.length > 0 &&
+				(!currentOrganization ||
+					!orgs.find((org) => org.id === currentOrganization.id))
+			) {
 				setCurrentOrganization(orgs[0]);
 			}
 		} catch (error) {
+			console.error("Failed to load organizations:", error);
 			toast({
 				variant: "destructive",
 				title: "組織の読み込みに失敗しました",
-				description: "組織の読み込みに失敗しました",
+				description: "ネットワーク接続を確認してください",
 			});
 			setOrganizations([]);
 		}
@@ -42,10 +53,13 @@ export const useOrganizationSwitcher = () => {
 	]);
 
 	const switchOrganization = useCallback(
-		(organization: UserOrganizationWithDetails) => {
+		async (organization: UserOrganizationWithDetails) => {
 			try {
 				setCurrentOrganization(organization);
-				console.log("組織が変更されました", organization);
+
+				// LocalStorageに保存して、ページリロード時も維持
+				localStorage.setItem("lastOrganizationId", organization.id);
+
 				toast({
 					title: "組織が変更されました",
 					description: `現在の組織は「${organization.name}」です。`,
@@ -68,4 +82,10 @@ export const useOrganizationSwitcher = () => {
 		loadOrganizations,
 		switchOrganization,
 	};
+};
+
+// 利便性のために追加するラッパーフック
+export const useCurrentOrganization = () => {
+	const { currentOrganization } = useOrganizationSwitcher();
+	return { organization: currentOrganization };
 };

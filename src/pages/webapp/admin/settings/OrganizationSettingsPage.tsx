@@ -1,11 +1,8 @@
 import { AdminPageHeader } from "@/components/webapp/admin/AdminPageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form } from "@/components/ui/form";
-import { useOrganizationSettings } from "./_hooks/useOrganizationSettings";
+import { OrganizationSettingsForm } from "./_components/OrganizationSettingsForm";
 
 export const OrganizationSettingsPage = () => {
-	const { form } = useOrganizationSettings();
-
 	return (
 		<div className="space-y-6">
 			<AdminPageHeader
@@ -17,7 +14,7 @@ export const OrganizationSettingsPage = () => {
 					<CardTitle>基本情報</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<Form {...form}>{/* フォームフィールドの実装 */}</Form>
+					<OrganizationSettingsForm />
 				</CardContent>
 			</Card>
 		</div>

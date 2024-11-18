@@ -3,17 +3,40 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { OrganizationMember } from "@/types/organization";
 import { useToast } from "@/hooks/use-toast";
+import type { OrganizationRole } from "@/types/organization";
+import { useAtomValue } from "jotai";
+import { currentOrganizationAtom } from "@/stores/organizationAtom";
+
+// Supabaseのレスポンス型を定義
+interface UserOrganizationResponse {
+	user_id: string;
+	role: string;
+	created_at: string;
+	user_profiles: {
+		user_id: string;
+		full_name: string | null;
+		email: string;
+		profile_image: string | null;
+	};
+}
 
 export const useUsers = () => {
 	const queryClient = useQueryClient();
-	const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+	const currentOrganization = useAtomValue(currentOrganizationAtom);
+	const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>(
+		{},
+	);
 	const { toast } = useToast();
 
 	// ユーザー一覧の取得
 	const { data: users = [], isLoading } = useQuery({
-		queryKey: ["organization-members"],
+		queryKey: ["organization-members", currentOrganization?.id],
 		queryFn: async () => {
-			const { data, error } = await supabase.from("user_organizations").select(`
+			if (!currentOrganization?.id) throw new Error("組織が選択されていません");
+
+			const { data, error } = await supabase
+				.from("user_organizations")
+				.select(`
           *,
           user_profiles:user_id(
             user_id,
@@ -21,21 +44,23 @@ export const useUsers = () => {
             email,
             profile_image
           )
-        `);
+        `)
+				.eq("organization_id", currentOrganization.id);
 
 			if (error) throw error;
 
-			return data.map(
-				(item: any): OrganizationMember => ({
+			return (data as UserOrganizationResponse[]).map(
+				(item): OrganizationMember => ({
 					id: item.user_profiles.user_id,
-					name: item.user_profiles.full_name,
+					name: item.user_profiles.full_name ?? "未設定",
 					email: item.user_profiles.email,
-					role: item.role,
-					profileImage: item.user_profiles.profile_image,
+					role: item.role as OrganizationRole,
+					profileImage: item.user_profiles.profile_image ?? undefined,
 					joinedAt: item.created_at,
 				}),
 			);
 		},
+		enabled: !!currentOrganization?.id,
 	});
 
 	// ユーザーロールの更新
@@ -74,7 +99,7 @@ export const useUsers = () => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["organization-members"] });
-			setSelectedUsers([]);
+			setSelectedUsers({});
 			toast({
 				title: "選択したユーザーを削除しました",
 			});

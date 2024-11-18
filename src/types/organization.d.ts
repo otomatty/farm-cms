@@ -94,3 +94,33 @@ export interface OrganizationMember {
 export interface OrganizationMemberRow extends OrganizationMember {
 	actions?: React.ReactNode;
 }
+
+export type InvitationStatus = "pending" | "accepted" | "expired" | "canceled";
+
+export interface OrganizationInvitation {
+	id: string;
+	organization_id: string;
+	email: string;
+	role: OrganizationRole;
+	status: InvitationStatus;
+	message?: string;
+	expires_at: string;
+	created_at: string;
+	updated_at: string;
+	created_by: string;
+}
+
+// UI表示用の招待情報の型
+export interface InvitationWithDetails {
+	id: string;
+	email: string;
+	role: OrganizationRole;
+	status: InvitationStatus;
+	message?: string;
+	expiresAt: string;
+	createdAt: string;
+	createdBy: {
+		name: string;
+		email: string;
+	};
+}
