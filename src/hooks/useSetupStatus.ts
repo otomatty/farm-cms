@@ -1,60 +1,77 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 
-export const useSetupStatus = () => {
-	const { session } = useAuth();
-	const [isProfileCompleted, setIsProfileCompleted] = useState(false);
-	const [isOrganizationCompleted, setIsOrganizationCompleted] = useState(false);
-	const [isLoading, setIsLoading] = useState(true);
+interface SetupStatus {
+	isProfileCompleted: boolean;
+	isOrganizationCompleted: boolean;
+	isSetupCompleted: boolean;
+}
 
-	useEffect(() => {
-		const checkSetupStatus = async () => {
-			if (!session?.user?.id) return;
+export const useSetupStatus = (options?: {
+	enableLogging?: boolean;
+}) => {
+	const { session } = useAuth();
+
+	return useQuery({
+		queryKey: ["setupStatus", session?.user?.id],
+		queryFn: async (): Promise<SetupStatus> => {
+			if (!session?.user?.id) {
+				throw new Error("User not authenticated");
+			}
 
 			try {
-				// プロフィールと組織情報を並行して取得
-				const [profileResult, organizationResult] = await Promise.all([
+				const [profileResult, organizationsResult] = await Promise.all([
 					supabase
 						.from("user_profiles")
-						.select("user_id")
+						.select("setup_completed")
 						.eq("user_id", session.user.id)
 						.single(),
 					supabase
 						.from("user_organizations")
-						.select("id")
-						.eq("user_id", session.user.id)
-						.limit(1)
-						.single(),
+						.select(`
+							organization_id,
+							organizations (id, name)
+						`)
+						.eq("user_id", session.user.id),
 				]);
 
-				// プロフィールの確認
-				if (profileResult.error && profileResult.error.code !== "PGRST116") {
-					console.error("Profile check error:", profileResult.error);
-				}
-				setIsProfileCompleted(!!profileResult.data);
+				const hasProfile = !!profileResult.data?.setup_completed;
+				const hasOrganization = (organizationsResult.data?.length ?? 0) > 0;
 
-				// 組織の確認
-				if (
-					organizationResult.error &&
-					organizationResult.error.code !== "PGRST116"
-				) {
-					console.error("Organization check error:", organizationResult.error);
+				if (options?.enableLogging) {
+					console.log("Profile check result:", profileResult.data);
+					console.log("Organization check result:", {
+						hasOrganization,
+						organizations: organizationsResult.data,
+					});
 				}
-				setIsOrganizationCompleted(!!organizationResult.data);
+
+				const status: SetupStatus = {
+					isProfileCompleted: hasProfile,
+					isOrganizationCompleted: hasOrganization,
+					isSetupCompleted: hasProfile && hasOrganization,
+				};
+
+				return status;
 			} catch (error) {
 				console.error("Setup status check failed:", error);
-			} finally {
-				setIsLoading(false);
+				throw error;
 			}
-		};
+		},
+		staleTime: 1000 * 60 * 5, // 5分間キャッシュを有効に
+		gcTime: 1000 * 60 * 30, // 30分間キャッシュを保持
+		retry: 3, // リトライ回数を設定
+		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // 指数バックオフ
+		enabled: !!session?.user?.id,
+	});
+};
 
-		checkSetupStatus();
-	}, [session?.user?.id]);
-
+// 簡略化されたバージョンを提供するユーティリティフック
+export const useSetupCompletion = () => {
+	const { data, isLoading } = useSetupStatus();
 	return {
-		isProfileCompleted,
-		isOrganizationCompleted,
+		isSetupCompleted: data?.isSetupCompleted ?? false,
 		isLoading,
 	};
 };

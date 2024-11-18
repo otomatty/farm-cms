@@ -35,21 +35,18 @@ export const OrganizationContextGuard = ({
 	}, [session?.user?.id, isAuthLoading, loadOrganizations]);
 
 	useEffect(() => {
-		if (
-			location.pathname.startsWith("/webapp/setup") ||
-			location.state?.setupCompleted ||
-			(session?.user?.id &&
-				localStorage.getItem(`setup_completed_${session.user.id}`) === "true")
-		) {
-			return;
-		}
-
 		if (isAuthLoading || isOrgLoading) {
 			return;
 		}
 
-		if (!currentOrganization) {
-			navigate("/webapp/setup/organization");
+		if (
+			!currentOrganization &&
+			!location.pathname.startsWith("/webapp/organizations")
+		) {
+			navigate("/webapp/organizations", {
+				replace: true,
+				state: { returnPath: location.pathname },
+			});
 		}
 	}, [
 		isAuthLoading,
@@ -57,8 +54,6 @@ export const OrganizationContextGuard = ({
 		currentOrganization,
 		navigate,
 		location.pathname,
-		location.state,
-		session?.user?.id,
 	]);
 
 	if (isAuthLoading || isOrgLoading) {

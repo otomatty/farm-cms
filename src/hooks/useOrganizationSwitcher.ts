@@ -43,9 +43,23 @@ export const useOrganizationSwitcher = () => {
 
 	const switchOrganization = useCallback(
 		(organization: UserOrganizationWithDetails) => {
-			setCurrentOrganization(organization);
+			try {
+				setCurrentOrganization(organization);
+				console.log("組織が変更されました", organization);
+				toast({
+					title: "組織が変更されました",
+					description: `現在の組織は「${organization.name}」です。`,
+				});
+			} catch (error) {
+				console.error("組織の切り替えに失敗しました", error);
+				toast({
+					variant: "destructive",
+					title: "組織の切り替えに失敗しました",
+					description: "もう一度お試しください。",
+				});
+			}
 		},
-		[setCurrentOrganization],
+		[setCurrentOrganization, toast],
 	);
 
 	return {

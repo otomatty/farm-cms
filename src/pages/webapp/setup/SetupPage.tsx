@@ -12,7 +12,6 @@ import { UserInfoCard } from "@/components/auth/UserInfoCard";
 import { useSetupStatus } from "@/hooks/useSetupStatus";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner/LoadingSpinner";
 import { useOrganizationSwitcher } from "@/hooks/useOrganizationSwitcher";
-import { useSetupStore } from "@/stores/setupStore";
 
 const cardVariants = {
 	initial: { scale: 1 },
@@ -41,12 +40,9 @@ export const SetupPage = () => {
 	const { toast } = useToast();
 	const { session, signOut } = useAuth();
 	const { loadOrganizations } = useOrganizationSwitcher();
-	const { isProfileCompleted, isOrganizationCompleted, isLoading } =
-		useSetupStatus();
-	const {
-		isProfileCompleted: storeIsProfileCompleted,
-		isOrganizationCompleted: storeIsOrganizationCompleted,
-	} = useSetupStore();
+	const { data: setupStatus, isLoading } = useSetupStatus({
+		enableLogging: true,
+	});
 
 	const handleSetupComplete = useCallback(async () => {
 		if (!session?.user?.id) {
@@ -58,38 +54,11 @@ export const SetupPage = () => {
 			return;
 		}
 
-		if (!storeIsProfileCompleted || !storeIsOrganizationCompleted) {
-			toast({
-				title: "エラー",
-				description: "プロフィールと組織の設定を完了してください",
-				variant: "destructive",
-			});
-			return;
-		}
-
 		try {
-			console.log("Calling completeSetup");
 			await completeSetup(session.user.id);
-			console.log("Setup completed successfully");
-
 			await loadOrganizations();
-			console.log("Organizations reloaded");
-
-			if (session.user.id) {
-				localStorage.setItem(`setup_completed_${session.user.id}`, "true");
-			}
-
-			toast({
-				title: "セットアップが完了しました",
-				description: "ダッシュボードに移動します",
-			});
-
-			navigate("/webapp", {
-				replace: true,
-				state: { setupCompleted: true },
-			});
+			window.location.href = "/webapp";
 		} catch (error) {
-			console.error("Failed to complete setup:", error);
 			toast({
 				title: "エラー",
 				description:
@@ -99,14 +68,7 @@ export const SetupPage = () => {
 				variant: "destructive",
 			});
 		}
-	}, [
-		session?.user?.id,
-		storeIsProfileCompleted,
-		storeIsOrganizationCompleted,
-		loadOrganizations,
-		navigate,
-		toast,
-	]);
+	}, [session?.user?.id, loadOrganizations, toast]);
 
 	const handleSignOut = async () => {
 		try {
@@ -199,9 +161,9 @@ export const SetupPage = () => {
 				<div>
 					<div className="h-full flex flex-col gap-4">
 						<SetupCard
-							isCompleted={isProfileCompleted}
+							isCompleted={setupStatus?.isProfileCompleted ?? false}
 							title={
-								isProfileCompleted
+								setupStatus?.isProfileCompleted
 									? "プロフィールを編集する"
 									: "プロフィールを設定する"
 							}
@@ -210,9 +172,9 @@ export const SetupPage = () => {
 						/>
 
 						<SetupCard
-							isCompleted={isOrganizationCompleted}
+							isCompleted={setupStatus?.isOrganizationCompleted ?? false}
 							title={
-								isOrganizationCompleted
+								setupStatus?.isOrganizationCompleted
 									? "組織設定を編集する"
 									: "組織を設定する"
 							}
@@ -222,18 +184,19 @@ export const SetupPage = () => {
 					</div>
 				</div>
 			</div>
-			{isProfileCompleted && isOrganizationCompleted && (
-				<motion.div
-					className="text-center"
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.3 }}
-				>
-					<Button onClick={handleSetupComplete} size="lg" className="mt-8">
-						セットアップを完了する
-					</Button>
-				</motion.div>
-			)}
+			{setupStatus?.isProfileCompleted &&
+				setupStatus?.isOrganizationCompleted && (
+					<motion.div
+						className="text-center"
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.3 }}
+					>
+						<Button onClick={handleSetupComplete} size="lg" className="mt-8">
+							セットアップを完了する
+						</Button>
+					</motion.div>
+				)}
 		</div>
 	);
 };

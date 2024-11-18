@@ -3,6 +3,7 @@ import { AuthGuard } from "@/components/guards/AuthGuard";
 import { SetupGuard } from "@/components/guards/SetupGuard";
 import { OrganizationContextGuard } from "@/components/guards/OrganizationContextGuard";
 import { AppLayout } from "@/components/webapp/layouts/AppLayout/AppLayout";
+import { RequireOrganization } from "@/components/guards/RequireOrganization";
 
 // メインアプリケーションのページインポート
 import { DashboardPage } from "@/pages/webapp/dashboard/DashboardPage";
@@ -28,7 +29,12 @@ export const webappRoutes: RouteObject[] = [
 		path: "/webapp",
 		element: (
 			<AuthGuard>
-				<SetupGuard>
+				<SetupGuard
+					skipSetupCheck={
+						location.pathname.startsWith("/webapp/setup") ||
+						location.pathname.startsWith("/webapp/organizations")
+					}
+				>
 					<OrganizationContextGuard>
 						<AppLayout />
 					</OrganizationContextGuard>
@@ -37,66 +43,6 @@ export const webappRoutes: RouteObject[] = [
 		),
 
 		children: [
-			{
-				index: true,
-				element: <DashboardPage />,
-			},
-			{
-				path: "settings",
-				element: <SettingsPage />,
-			},
-			{
-				path: "profile",
-				element: <ProfilePage />,
-			},
-			{
-				path: "blogs",
-				element: <BlogsPage />,
-			},
-			{
-				path: "events",
-				element: <EventsPage />,
-			},
-			{
-				path: "team-members",
-				element: <TeamMembersPage />,
-			},
-			{
-				path: "testimonials",
-				element: <TestimonialsPage />,
-			},
-			{
-				path: "faqs",
-				element: <FAQsPage />,
-			},
-			{
-				path: "gallery",
-				element: <GalleryPage />,
-			},
-			{
-				path: "guides",
-				element: <GuidesPage />,
-			},
-			{
-				path: "inquiries",
-				element: <InquiriesPage />,
-			},
-			{
-				path: "news",
-				element: <NewsPage />,
-			},
-			{
-				path: "notifications",
-				element: <NotificationsPage />,
-			},
-			{
-				path: "products",
-				element: <ProductsPage />,
-			},
-			{
-				path: "recruitment",
-				element: <RecruitmentPage />,
-			},
 			{
 				path: "organizations",
 				children: [
@@ -107,6 +53,71 @@ export const webappRoutes: RouteObject[] = [
 					{
 						path: "new",
 						element: <OrganizationNewPage />,
+					},
+				],
+			},
+			{
+				element: <RequireOrganization />,
+				children: [
+					{
+						index: true,
+						element: <DashboardPage />,
+					},
+					{
+						path: "settings",
+						element: <SettingsPage />,
+					},
+					{
+						path: "profile",
+						element: <ProfilePage />,
+					},
+					{
+						path: "blogs",
+						element: <BlogsPage />,
+					},
+					{
+						path: "events",
+						element: <EventsPage />,
+					},
+					{
+						path: "team-members",
+						element: <TeamMembersPage />,
+					},
+					{
+						path: "testimonials",
+						element: <TestimonialsPage />,
+					},
+					{
+						path: "faqs",
+						element: <FAQsPage />,
+					},
+					{
+						path: "gallery",
+						element: <GalleryPage />,
+					},
+					{
+						path: "guides",
+						element: <GuidesPage />,
+					},
+					{
+						path: "inquiries",
+						element: <InquiriesPage />,
+					},
+					{
+						path: "news",
+						element: <NewsPage />,
+					},
+					{
+						path: "notifications",
+						element: <NotificationsPage />,
+					},
+					{
+						path: "products",
+						element: <ProductsPage />,
+					},
+					{
+						path: "recruitment",
+						element: <RecruitmentPage />,
 					},
 				],
 			},
