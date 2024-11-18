@@ -1,86 +1,76 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { DataTableColumnHeader } from "@/components/ui/data-table/DataTableColumnHeader";
-import { DataTableRowActions } from "./DataTableRowActions";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { ja } from "date-fns/locale";
-import type { OrganizationMember } from "@/types/organization";
+"use client";
 
-export const columns: ColumnDef<OrganizationMember>[] = [
-	{
-		id: "select",
-		header: ({ table }) => (
-			<Checkbox
-				checked={table.getIsAllPageRowsSelected()}
-				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-				aria-label="全て選択"
-			/>
-		),
-		cell: ({ row }) => (
-			<Checkbox
-				checked={row.getIsSelected()}
-				onCheckedChange={(value) => row.toggleSelected(!!value)}
-				aria-label="行を選択"
-			/>
-		),
-		enableSorting: false,
-		enableHiding: false,
-	},
+import type { ColumnDef } from "@tanstack/react-table";
+import { MoreHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+// TODO: 後でスキーマ定義から型をインポートする
+export type User = {
+	id: string;
+	email: string;
+	name: string;
+	role: "admin" | "user";
+	createdAt: string;
+};
+
+export const columns: ColumnDef<User>[] = [
 	{
 		accessorKey: "name",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="名前" />
-		),
-		cell: ({ row }) => {
-			return (
-				<div className="flex items-center gap-2">
-					<Avatar className="h-8 w-8">
-						<AvatarImage src={row.original.profileImage} />
-						<AvatarFallback>{row.original.name[0]}</AvatarFallback>
-					</Avatar>
-					<div className="flex flex-col">
-						<span className="font-medium">{row.original.name}</span>
-						<span className="text-sm text-muted-foreground">
-							{row.original.email}
-						</span>
-					</div>
-				</div>
-			);
-		},
+		header: "名前",
+	},
+	{
+		accessorKey: "email",
+		header: "メールアドレス",
 	},
 	{
 		accessorKey: "role",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="ロール" />
-		),
+		header: "権限",
 		cell: ({ row }) => {
-			const role = row.original.role;
-			return (
-				<Badge variant={role === "owner" ? "default" : "secondary"}>
-					{role === "owner"
-						? "オーナー"
-						: role === "admin"
-							? "管理者"
-							: "メンバー"}
-				</Badge>
-			);
+			const role = row.getValue("role") as string;
+			return role === "admin" ? "管理者" : "一般ユーザー";
 		},
 	},
 	{
-		accessorKey: "joinedAt",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="参加日" />
-		),
+		accessorKey: "createdAt",
+		header: "登録日",
 		cell: ({ row }) => {
-			return format(new Date(row.original.joinedAt), "yyyy年MM月dd日", {
-				locale: ja,
-			});
+			return new Date(row.getValue("createdAt")).toLocaleDateString("ja-JP");
 		},
 	},
 	{
 		id: "actions",
-		cell: ({ row }) => <DataTableRowActions row={row} />,
+		cell: ({ row }) => {
+			const user = row.original;
+
+			return (
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button variant="ghost" className="h-8 w-8 p-0">
+							<span className="sr-only">メニューを開く</span>
+							<MoreHorizontal className="h-4 w-4" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuLabel>アクション</DropdownMenuLabel>
+						<DropdownMenuItem
+							onClick={() => navigator.clipboard.writeText(user.id)}
+						>
+							IDをコピー
+						</DropdownMenuItem>
+						<DropdownMenuSeparator />
+						<DropdownMenuItem>編集</DropdownMenuItem>
+						<DropdownMenuItem className="text-red-600">削除</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			);
+		},
 	},
 ];
