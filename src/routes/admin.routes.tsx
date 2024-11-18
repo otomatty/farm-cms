@@ -10,10 +10,10 @@ import { UsersPage } from "@/pages/webapp/admin/users/UsersPage";
 import { InvitationsPage } from "@/pages/webapp/admin/users/InvitationsPage";
 import { ContentSettingsPage } from "@/pages/webapp/admin/contents/ContentSettingsPage";
 import { ContentPermissionsPage } from "@/pages/webapp/admin/contents/ContentPermissionsPage";
-import { OrganizationSettingsPage } from "@/pages/webapp/admin/settings/OrganizationSettingsPage";
-import { SecuritySettingsPage } from "@/pages/webapp/admin/security/SecuritySettingsPage";
-import { AuditLogsPage } from "@/pages/webapp/admin/audit/AuditLogsPage";
-import { IntegrationsPage } from "@/pages/webapp/admin/integrations/IntegrationsPage";
+// import { OrganizationSettingsPage } from "@/pages/webapp/admin/settings/OrganizationSettingsPage";
+// import { SecuritySettingsPage } from "@/pages/webapp/admin/security/SecuritySettingsPage";
+// import { AuditLogsPage } from "@/pages/webapp/admin/audit/AuditLogsPage";
+// import { IntegrationsPage } from "@/pages/webapp/admin/integrations/IntegrationsPage";
 
 export const adminRoutes: RouteObject[] = [
 	{
@@ -44,22 +44,22 @@ export const adminRoutes: RouteObject[] = [
 					{ path: "permissions", element: <ContentPermissionsPage /> },
 				],
 			},
-			{
-				path: "settings",
-				element: <OrganizationSettingsPage />,
-			},
-			{
-				path: "security",
-				element: <SecuritySettingsPage />,
-			},
-			{
-				path: "audit",
-				element: <AuditLogsPage />,
-			},
-			{
-				path: "integrations",
-				element: <IntegrationsPage />,
-			},
+			// 	{
+			// 		path: "settings",
+			// 		element: <OrganizationSettingsPage />,
+			// 	},
+			// 	{
+			// 		path: "security",
+			// 		element: <SecuritySettingsPage />,
+			// 	},
+			// 	{
+			// 		path: "audit",
+			// 		element: <AuditLogsPage />,
+			// 	},
+			// 	{
+			// 		path: "integrations",
+			// 		element: <IntegrationsPage />,
+			// 	},
 		],
 	},
 ];
